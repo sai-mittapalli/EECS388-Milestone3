@@ -147,16 +147,20 @@ void raspberrypi_int_handler(int devid)
 {
     char * str = malloc(20 * sizeof(char));
 
-    //g_angle => readline from UART0
-
+    int time,ang,dir;
+    //read input store into str
     ser_readline(devid,20,str);
 
-    sscanf(str, "%d %d %d", &g_direction, &g_time, &g_angle);
-    //sscanf(str+16, "%d", &g_angle);
+    //break str into vars
+    // sscanf(str, "%d %d %d", &g_direction, &g_time, &g_angle);
+    sscanf(str, "%d", &dir);
+    sscanf(str+2, "%d", &time);
+    sscanf(str+4, "%d", &ang);
 
-    //printf("%d", g_angle);
-    printf("%d %d %d", g_direction, g_angle, g_time);
+    //debug output
+    printf("%d %d %d ", dir, time, ang);
 
+    //free space used for str
     free(str);
 }
 
@@ -189,15 +193,31 @@ int main()
         if (ser_isready(1))
         {
             //read command
-            raspberrypi_int_handler(1);
+            //raspberrypi_int_handler(1);
+            char * str = malloc(20 * sizeof(char));
 
-            //read command
+            int time,ang,dir;
+            //read input store into str
+            ser_readline(1,20,str);
 
-            if (g_direction == 1)
+            //break str into vars
+            // sscanf(str, "%d %d %d", &g_direction, &g_time, &g_angle);
+            sscanf(str, "%d", &dir);
+            sscanf(str+2, "%d", &time);
+            sscanf(str+4, "%d", &ang);
+
+            //debug output
+            printf("%d %d %d ", dir, time, ang);
+
+            //free space used for str
+            free(str);
+
+            //set driving direction or stop
+            if (dir == 1)
             {
                 driveForward(1);
             }
-            else if (g_direction == 2)
+            else if (dir == 2)
             {
                 driveReverse(1);
             }
@@ -206,10 +226,10 @@ int main()
                 stopMotor();
             }
 
-            steering(g_angle);
-            delay(1000 * g_time);
-
-
+            //set steering
+            steering(ang);
+            //set delay time
+            delay(1000 * time);
         }
     
     }
